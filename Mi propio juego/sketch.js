@@ -2,7 +2,7 @@ var icon,iconImg;
 
 var spike,spike2,spikeImg;
 
-var block1,block2,block3,block4;
+var block;
 
 var BG,BGImg;
 
@@ -25,8 +25,13 @@ var speedPortal,speedPortalImg;
 var invisibleFloor;
 var edges;
 
+var GameOverImg;
+
+var BlockImg
+
 var gravityState = 0;
 var vehicleState = 0;
+var gameState = "PLAY";
 
 function preload(){
   iconImg = loadImage("Imagenes/icon.png");
@@ -54,6 +59,10 @@ function preload(){
   speedPortalImg = loadImage("Imagenes/speed_impulse.png");
 
   BGImg = loadImage("Imagenes/fondo.jpg");
+
+  GameOverImg = loadImage("Imagenes/GameOver.png");
+
+  BlockImg = loadImage("Imagenes/bloque.jpg")
 }
 function setup() {
   createCanvas(1250,600);
@@ -61,8 +70,9 @@ function setup() {
   icon = createSprite(625,200,50,50);
   icon.addImage("icono",iconImg);
   icon.addImage("vBall",ballImg);
+  icon.addImage("Fin del Juego", GameOverImg);
   icon.scale = 0.3
-  
+
 
   invisibleFloor = createSprite(width/2,height-80,1300,10);
   invisibleFloor.visible = false;
@@ -143,7 +153,9 @@ function setup() {
   spike2.scale = 0.4;
 
 
-  //block1 = new Block(625,250);
+  block = createSprite(625,250,50,50);
+  block.addImage("Imagen del bloque",BlockImg);
+  block.scale = 0.25
 }
 function draw(){
   background(BGImg)
@@ -151,13 +163,15 @@ function draw(){
   console.log("vehículo:" + vehicleState);
   console.log("gravedad:" + gravityState);
 
+if(gameState === "PLAY"){
   if(gravityState === 0){
     icon.velocityY = icon.velocityY + 1;
   
     if(keyDown("SPACE") && icon.y >= height-120 && vehicleState === 0){
       icon.velocityY = -13;
     }
-    if(keyDown("SPACE") && icon.isTouching(orb)||icon.isTouching(orb2)){
+    if(keyDown("SPACE") && icon.isTouching(orb)||
+       keyDown("SPACE") && icon.isTouching(orb2)){
       icon.velocityY = -16;
     }
 
@@ -172,12 +186,14 @@ function draw(){
       icon.scale = 0.3
     }
 
-    if(icon.isTouching(spike)){
+    if(icon.isTouching(spike)||icon.isTouching(spike2)){
       icon.changeImage("icono");
 
       icon.x = width/2;
 
       vehicleState = 0;
+
+      gameState = "END";
     }
 
     if(icon.isTouching(yellowPortal)){
@@ -223,7 +239,8 @@ function draw(){
     if(keyDown("SPACE") && icon.y <= 33 && vehicleState === 0){
       icon.velocityY = 13;
     }
-    if(keyDown("SPACE") && icon.isTouching(orb)||icon.isTouching(orb2)){
+    if(keyDown("SPACE") && icon.isTouching(orb)||
+       keyDown("SPACE") && icon.isTouching(orb2)){
       icon.velocityY = 16;
     }
 
@@ -259,12 +276,14 @@ function draw(){
       icon.scale = 0.3
     }
 
-    if(icon.isTouching(spike2)){
+    if(icon.isTouching(spike2)||icon.isTouching(spike)){
       icon.changeImage("icono");
       
       icon.x = width/2;
 
       vehicleState = 0;
+
+      gameState = "END";
     }
 
     if(keyDown("D")){
@@ -280,6 +299,22 @@ function draw(){
       icon.velocityX = 0;
     }
   }
+}
+else if(gameState === "END"){
+    icon.changeImage("Fin del Juego");
+    icon.x = 1250/2;
+    icon.y = 300;
+
+    if(keyDown(82)){
+      gameState = "PLAY";
+
+      icon.changeImage("icono");
+    }
+}  
+
+  block.display();
+
+  icon.collide(block);
 
   icon.collide(invisibleFloor);
   icon.collide(invisibleFloor2);
